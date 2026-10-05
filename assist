@@ -1,0 +1,17 @@
+
+
+
+//Use this to add the data  in the appUser class of password and username
+
+@Autowired
+private AppUserService appUserService;
+
+public void addTeacher(Teacher teacher) {
+    teacherRepository.save(teacher); // Save teacher first
+    appUserService.createAppUser(
+        teacher.getEmail(),      // Or any unique username field
+        teacher.getPassword(),   // Raw password
+        "TEACHER",
+        teacher.getId()
+    );
+}

@@ -1,0 +1,42 @@
+services:
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: school-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: schooldba12
+
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  school-app:
+    build: .
+    container_name: school-app
+    environment:
+      DB_URL: jdbc:mysql://mysql-db:3306/schooldba12
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "8181:8181"
+
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+volumes:
+  mysql-data:
